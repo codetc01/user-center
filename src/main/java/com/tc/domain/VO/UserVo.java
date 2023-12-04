@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserVo {
-    private Integer id;
+    private Long id;
 
 
     private String username;
@@ -34,7 +34,7 @@ public class UserVo {
     /**
      *
      */
-    private Integer gender;
+    private String gender;
 
 
     /**

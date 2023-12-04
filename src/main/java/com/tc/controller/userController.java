@@ -103,4 +103,28 @@ public class userController {
         System.out.println(Result.success(users1));
         return Result.success(users1);
     }
+
+    @GetMapping("/current")
+    @ApiOperation("/个人主页")
+    public Result<UserVo> getCurrentUser(HttpServletRequest request){
+        UserVo user = userService.getCurrentUser(request);
+        return Result.success(user);
+    }
+
+    @PostMapping("/update")
+    @ApiOperation("修改用户信息")
+    public Result<Integer> editUser(@RequestBody User user, HttpServletRequest httpServletRequest){
+        if(user == null){
+            throw new RuntimeException("传入对象为空");
+        }
+        System.out.println("GetUser" + user);
+        Integer num = userService.editUser(user, getUser(httpServletRequest));
+        return Result.success(num);
+    }
+
+    public UserVo getUser(HttpServletRequest request){
+        UserVo currentUser = userService.getCurrentUser(request);
+        return currentUser;
+
+    }
 }

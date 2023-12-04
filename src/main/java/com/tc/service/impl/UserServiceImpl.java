@@ -246,6 +246,64 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return userVos;
     }
 
+    @Override
+    public UserVo getCurrentUser(HttpServletRequest request) {
+        User attribute = (User) request.getSession().getAttribute(USER_LOGIN_STATE);
+        if(attribute == null){
+            throw new RuntimeException("Session对象为空");
+        }
+        User user = userMapper.selectById(attribute.getId());
+        UserVo userVo = new UserVo();
+        BeanUtils.copyProperties(user, userVo);
+        return userVo;
+    }
+
+    @Override
+    public Integer editUser(User user, UserVo userVo) {
+        if(user.getId() == null){
+            throw new RuntimeException("传入的ID为空");
+        }
+        if (isAdmin(user.getId())) {
+            // 管理员接口，可以对所有用户进行操作
+            User userByDB = userMapper.selectById(user.getId());
+            if(userByDB == null){
+                throw new RuntimeException("要修改的用户不存在");
+            }
+            int i = userMapper.updateById(user);
+            return i;
+        }
+
+        // 普通用户，要对身份进行校验
+        if(userVo.getId() == null){
+            throw new RuntimeException("Session对象出错");
+        }
+        System.out.println("ID" + user.getId() + " " + userVo.getId());
+        if(!user.getId().equals(userVo.getId())){
+            throw new RuntimeException("无权修改该用户信息");
+        }
+        User userByDB = userMapper.selectById(user.getId());
+        if(userByDB == null){
+            throw new RuntimeException("要修改的用户不存在");
+        }
+        int i = userMapper.updateById(user);
+        return i;
+    }
+
+    @Override
+    public Boolean isAdmin(Long id) {
+        if(id == null){
+            throw new RuntimeException("传入ID为空");
+        }
+        User user = userMapper.selectById(id);
+        // 如果为0，代表普通用户
+        if(user.getUserRole() == 0){
+            return false;
+        }
+        // 为1，则代表是管理员
+        return true;
+    }
+
+
 }
 
 

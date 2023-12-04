@@ -25,4 +25,10 @@ public interface UserService extends IService<User> {
     Integer userLogout(HttpServletRequest httpServletRequest);
 
     List<UserVo> searchUserByTags(List<String> tagsList);
+
+    UserVo getCurrentUser(HttpServletRequest request);
+
+    Integer editUser(User user, UserVo user1);
+
+    Boolean isAdmin(Long id);
 }
