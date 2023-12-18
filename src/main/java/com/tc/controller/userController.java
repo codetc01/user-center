@@ -1,5 +1,6 @@
 package com.tc.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import com.tc.domain.DTO.LoginDTO;
 import com.tc.domain.DTO.RegisterDTO;
@@ -12,12 +13,15 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.models.auth.In;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.schema.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -34,6 +38,9 @@ public class userController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @PostMapping("/register")
     @ApiOperation("用户注册")
@@ -122,9 +129,26 @@ public class userController {
         return Result.success(num);
     }
 
+    @GetMapping("/recommend")
+    public Result<Page<User>> getRecommend(Integer pageSize, Integer pageNum, HttpServletRequest httpServletRequest){
+        User userLoginState = (User) httpServletRequest.getSession().getAttribute("userLoginState");
+        String key = String.format("yupao:user:recommend:%s", userLoginState.getId());
+
+        ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
+        Page<User> pages = (Page<User>) valueOperations.get(key);
+        if(pages != null){
+            return Result.success(pages);
+        }
+
+        Page<User> userPage = new Page<>(pageNum, pageSize);
+        Page<User> page = userService.page(userPage, null);
+
+        valueOperations.set(key, page, 10000, TimeUnit.MILLISECONDS);
+        return Result.success(page);
+    }
+
     public UserVo getUser(HttpServletRequest request){
         UserVo currentUser = userService.getCurrentUser(request);
         return currentUser;
-
     }
 }

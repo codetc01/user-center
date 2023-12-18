@@ -39,6 +39,23 @@ public class webMVCConfiguration extends WebMvcConfigurationSupport {
         return docket;
     }
 
+//    @Bean
+//    public Docket docket2() {
+//        ApiInfo apiInfo = new ApiInfoBuilder()
+//                .title("用户中心接口文档")
+//                .version("2.0")
+//                .description("用户中心接口文档")
+//                .build();
+//        Docket docket = new Docket(DocumentationType.SWAGGER_2)
+//                .groupName("组队端接口")
+//                .apiInfo(apiInfo)
+//                .select()
+//                .apis(RequestHandlerSelectors.basePackage("com.tc.controller.teamController"))
+//                .paths(PathSelectors.any())
+//                .build();
+//        return docket;
+//    }
+
     /**
      * 设置静态资源映射
      * @param registry
